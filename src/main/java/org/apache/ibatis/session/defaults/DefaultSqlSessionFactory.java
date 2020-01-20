@@ -100,6 +100,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
       final Environment environment = configuration.getEnvironment();
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
       //通过事务工厂来产生一个事务
+      //连接属性，事务级别，是否自动提交
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
       //生成一个执行器(事务包含在执行器里)
       final Executor executor = configuration.newExecutor(tx, execType);

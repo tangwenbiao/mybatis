@@ -20,19 +20,19 @@ import java.util.Properties;
 /**
  * @author Clinton Begin
  */
+
 /**
  * 拦截器
- *
  */
 public interface Interceptor {
 
-  //拦截
+  //拦截，感觉像是另一种自定义方式 TODO
   Object intercept(Invocation invocation) throws Throwable;
 
-  //插入
+  //插入，在创建Executor的时候就会访问该方法
   Object plugin(Object target);
 
-  //设置属性
+  //设置属性，自定义属性，在创建类时候的时候就会访问该方法
   void setProperties(Properties properties);
 
 }

@@ -126,6 +126,9 @@ public class DefaultSqlSession implements SqlSession {
 
   //核心selectList
   @Override
+  //statement 暂不填写
+  //parameter 请求参数
+  //rowBounds 分页参数
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     try {
       //根据statement id找到对应的MappedStatement
@@ -314,7 +317,8 @@ public class DefaultSqlSession implements SqlSession {
         map.put("list", object);
       }
       return map;
-    } else if (object != null && object.getClass().isArray()) {
+    }
+    else if (object != null && object.getClass().isArray()) {
       //参数若是数组型，，做array标记
       StrictMap<Object> map = new StrictMap<Object>();
       map.put("array", object);

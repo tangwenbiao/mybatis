@@ -45,9 +45,9 @@ import org.apache.ibatis.type.JdbcType;
 /**
  * @author Clinton Begin
  */
+
 /**
- * XML配置构建器，建造者模式,继承BaseBuilder
- * mybatis的config xml 构建器，用于解析文件做的所有信息
+ * XML配置构建器，建造者模式,继承BaseBuilder mybatis的config xml 构建器，用于解析文件做的所有信息
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
@@ -81,7 +81,8 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
-    this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
+    this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment,
+        props);
   }
 
   //上面6个构造函数最后都合流到这个函数，传入XPathParser
@@ -135,9 +136,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     try {
       //分步骤解析
       //issue #117 read properties first
-      //1.properties
+      //1.properties 准备configuration中的variable属性
+      //三种方式 1.通过config的properties中获取（优先级最高），2.根据xml指定路径加载的属性文件 3.根据xml中自己设置的属性（优先级最低）
       propertiesElement(root.evalNode("properties"));
-      //2.类型别名
+      //2.类型别名 准备configuration中的alias.
+      //两种方式 1.限定类名 与 别名 2.扫描包路径 @Alias
       typeAliasesElement(root.evalNode("typeAliases"));
       //3.插件
       pluginElement(root.evalNode("plugins"));
@@ -174,6 +177,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 //<typeAliases>
 //  <package name="domain.blog"/>
 //</typeAliases>
+  //两种方案，1.单独设置限定类名与别名 2.扫描指定包路径下类，如果使用了@Alias则去Alias，否则去Class的simpleName
   private void typeAliasesElement(XNode parent) {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
@@ -197,7 +201,8 @@ public class XMLConfigBuilder extends BaseBuilder {
               typeAliasRegistry.registerAlias(alias, clazz);
             }
           } catch (ClassNotFoundException e) {
-            throw new BuilderException("Error registering typeAlias for '" + alias + "'. Cause: " + e, e);
+            throw new BuilderException(
+                "Error registering typeAlias for '" + alias + "'. Cause: " + e, e);
           }
         }
       }
@@ -267,7 +272,8 @@ public class XMLConfigBuilder extends BaseBuilder {
       String resource = context.getStringAttribute("resource");
       String url = context.getStringAttribute("url");
       if (resource != null && url != null) {
-        throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
+        throw new BuilderException(
+            "The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
       }
       if (resource != null) {
         defaults.putAll(Resources.getResourceAsProperties(resource));
@@ -309,58 +315,77 @@ public class XMLConfigBuilder extends BaseBuilder {
       MetaClass metaConfig = MetaClass.forClass(Configuration.class);
       for (Object key : props.keySet()) {
         if (!metaConfig.hasSetter(String.valueOf(key))) {
-          throw new BuilderException("The setting " + key + " is not known.  Make sure you spelled it correctly (case sensitive).");
+          throw new BuilderException("The setting " + key
+              + " is not known.  Make sure you spelled it correctly (case sensitive).");
         }
       }
 
       //下面非常简单，一个个设置属性
       //如何自动映射列到字段/ 属性
-      configuration.setAutoMappingBehavior(AutoMappingBehavior.valueOf(props.getProperty("autoMappingBehavior", "PARTIAL")));
+      configuration.setAutoMappingBehavior(
+          AutoMappingBehavior.valueOf(props.getProperty("autoMappingBehavior", "PARTIAL")));
       //缓存
       configuration.setCacheEnabled(booleanValueOf(props.getProperty("cacheEnabled"), true));
       //proxyFactory (CGLIB | JAVASSIST)
       //延迟加载的核心技术就是用代理模式，CGLIB/JAVASSIST两者选一
-      configuration.setProxyFactory((ProxyFactory) createInstance(props.getProperty("proxyFactory")));
+      configuration
+          .setProxyFactory((ProxyFactory) createInstance(props.getProperty("proxyFactory")));
       //延迟加载
-      configuration.setLazyLoadingEnabled(booleanValueOf(props.getProperty("lazyLoadingEnabled"), false));
+      configuration
+          .setLazyLoadingEnabled(booleanValueOf(props.getProperty("lazyLoadingEnabled"), false));
       //延迟加载时，每种属性是否还要按需加载
-      configuration.setAggressiveLazyLoading(booleanValueOf(props.getProperty("aggressiveLazyLoading"), true));
+      configuration.setAggressiveLazyLoading(
+          booleanValueOf(props.getProperty("aggressiveLazyLoading"), true));
       //允不允许多种结果集从一个单独 的语句中返回
-      configuration.setMultipleResultSetsEnabled(booleanValueOf(props.getProperty("multipleResultSetsEnabled"), true));
+      configuration.setMultipleResultSetsEnabled(
+          booleanValueOf(props.getProperty("multipleResultSetsEnabled"), true));
       //使用列标签代替列名
       configuration.setUseColumnLabel(booleanValueOf(props.getProperty("useColumnLabel"), true));
       //允许 JDBC 支持生成的键
-      configuration.setUseGeneratedKeys(booleanValueOf(props.getProperty("useGeneratedKeys"), false));
+      configuration
+          .setUseGeneratedKeys(booleanValueOf(props.getProperty("useGeneratedKeys"), false));
       //配置默认的执行器
-      configuration.setDefaultExecutorType(ExecutorType.valueOf(props.getProperty("defaultExecutorType", "SIMPLE")));
+      configuration.setDefaultExecutorType(
+          ExecutorType.valueOf(props.getProperty("defaultExecutorType", "SIMPLE")));
       //超时时间
-      configuration.setDefaultStatementTimeout(integerValueOf(props.getProperty("defaultStatementTimeout"), null));
+      configuration.setDefaultStatementTimeout(
+          integerValueOf(props.getProperty("defaultStatementTimeout"), null));
       //是否将DB字段自动映射到驼峰式Java属性（A_COLUMN-->aColumn）
-      configuration.setMapUnderscoreToCamelCase(booleanValueOf(props.getProperty("mapUnderscoreToCamelCase"), false));
+      configuration.setMapUnderscoreToCamelCase(
+          booleanValueOf(props.getProperty("mapUnderscoreToCamelCase"), false));
       //嵌套语句上使用RowBounds
-      configuration.setSafeRowBoundsEnabled(booleanValueOf(props.getProperty("safeRowBoundsEnabled"), false));
+      configuration.setSafeRowBoundsEnabled(
+          booleanValueOf(props.getProperty("safeRowBoundsEnabled"), false));
       //默认用session级别的缓存
-      configuration.setLocalCacheScope(LocalCacheScope.valueOf(props.getProperty("localCacheScope", "SESSION")));
+      configuration.setLocalCacheScope(
+          LocalCacheScope.valueOf(props.getProperty("localCacheScope", "SESSION")));
       //为null值设置jdbctype
-      configuration.setJdbcTypeForNull(JdbcType.valueOf(props.getProperty("jdbcTypeForNull", "OTHER")));
+      configuration
+          .setJdbcTypeForNull(JdbcType.valueOf(props.getProperty("jdbcTypeForNull", "OTHER")));
       //Object的哪些方法将触发延迟加载
-      configuration.setLazyLoadTriggerMethods(stringSetValueOf(props.getProperty("lazyLoadTriggerMethods"), "equals,clone,hashCode,toString"));
+      configuration.setLazyLoadTriggerMethods(
+          stringSetValueOf(props.getProperty("lazyLoadTriggerMethods"),
+              "equals,clone,hashCode,toString"));
       //使用安全的ResultHandler
-      configuration.setSafeResultHandlerEnabled(booleanValueOf(props.getProperty("safeResultHandlerEnabled"), true));
+      configuration.setSafeResultHandlerEnabled(
+          booleanValueOf(props.getProperty("safeResultHandlerEnabled"), true));
       //动态SQL生成语言所使用的脚本语言
-      configuration.setDefaultScriptingLanguage(resolveClass(props.getProperty("defaultScriptingLanguage")));
+      configuration
+          .setDefaultScriptingLanguage(resolveClass(props.getProperty("defaultScriptingLanguage")));
       //当结果集中含有Null值时是否执行映射对象的setter或者Map对象的put方法。此设置对于原始类型如int,boolean等无效。
-      configuration.setCallSettersOnNulls(booleanValueOf(props.getProperty("callSettersOnNulls"), false));
+      configuration
+          .setCallSettersOnNulls(booleanValueOf(props.getProperty("callSettersOnNulls"), false));
       //logger名字的前缀
       configuration.setLogPrefix(props.getProperty("logPrefix"));
       //显式定义用什么log框架，不定义则用默认的自动发现jar包机制
       configuration.setLogImpl(resolveClass(props.getProperty("logImpl")));
       //配置工厂
-      configuration.setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
+      configuration
+          .setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
     }
   }
 
-	//7.环境
+  //7.环境
 //	<environments default="development">
 //	  <environment id="development">
 //	    <transactionManager type="JDBC">
@@ -381,10 +406,11 @@ public class XMLConfigBuilder extends BaseBuilder {
       }
       for (XNode child : context.getChildren()) {
         String id = child.getStringAttribute("id");
-		//循环比较id是否就是指定的environment
+        //循环比较id是否就是指定的environment
         if (isSpecifiedEnvironment(id)) {
           //7.1事务管理器
-          TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
+          TransactionFactory txFactory = transactionManagerElement(
+              child.evalNode("transactionManager"));
           //7.2数据源
           DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
           DataSource dataSource = dsFactory.getDataSource();
@@ -397,9 +423,9 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
-	//8.databaseIdProvider
-	//可以根据不同数据库执行不同的SQL，sql要加databaseId属性
-	//这个功能感觉不是很实用，真要多数据库支持，那SQL工作量将会成倍增长，用mybatis以后一般就绑死在一个数据库上了。但也是一个不得已的方法吧
+  //8.databaseIdProvider
+  //可以根据不同数据库执行不同的SQL，sql要加databaseId属性
+  //这个功能感觉不是很实用，真要多数据库支持，那SQL工作量将会成倍增长，用mybatis以后一般就绑死在一个数据库上了。但也是一个不得已的方法吧
   //可以参考org.apache.ibatis.submitted.multidb包里的测试用例
 //	<databaseIdProvider type="VENDOR">
 //	  <property name="SQL Server" value="sqlserver"/>
@@ -413,7 +439,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       // awful patch to keep backward compatibility
       //与老版本兼容
       if ("VENDOR".equals(type)) {
-          type = "DB_VENDOR";
+        type = "DB_VENDOR";
       }
       Properties properties = context.getChildrenAsProperties();
       //"DB_VENDOR"-->VendorDatabaseIdProvider
@@ -437,7 +463,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (context != null) {
       String type = context.getStringAttribute("type");
       Properties props = context.getChildrenAsProperties();
-		//根据type="JDBC"解析返回适当的TransactionFactory
+      //根据type="JDBC"解析返回适当的TransactionFactory
       TransactionFactory factory = (TransactionFactory) resolveClass(type).newInstance();
       factory.setProperties(props);
       return factory;
@@ -445,7 +471,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     throw new BuilderException("Environment declaration requires a TransactionFactory.");
   }
 
-	//7.2数据源
+  //7.2数据源
 //<dataSource type="POOLED">
 //  <property name="driver" value="${driver}"/>
 //  <property name="url" value="${url}"/>
@@ -456,7 +482,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (context != null) {
       String type = context.getStringAttribute("type");
       Properties props = context.getChildrenAsProperties();
-		//根据type="POOLED"解析返回适当的DataSourceFactory
+      //根据type="POOLED"解析返回适当的DataSourceFactory
       DataSourceFactory factory = (DataSourceFactory) resolveClass(type).newInstance();
       factory.setProperties(props);
       return factory;
@@ -464,7 +490,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     throw new BuilderException("Environment declaration requires a DataSourceFactory.");
   }
 
-	//9.类型处理器
+  //9.类型处理器
 //	<typeHandlers>
 //	  <typeHandler handler="org.mybatis.example.ExampleTypeHandler"/>
 //	</typeHandlers>
@@ -503,7 +529,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
-	//10.映射器
+  //10.映射器
 //	10.1使用类路径
 //	<mappers>
 //	  <mapper resource="org/mybatis/builder/AuthorMapper.xml"/>
@@ -537,8 +563,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           //10.4自动扫描包下所有映射器
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
-        }
-        else {
+        } else {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
@@ -548,15 +573,16 @@ public class XMLConfigBuilder extends BaseBuilder {
             InputStream inputStream = Resources.getResourceAsStream(resource);
             //映射器比较复杂，调用XMLMapperBuilder
             //注意在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
+            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration,
+                resource, configuration.getSqlFragments());
             mapperParser.parse();
-          }
-          else if (resource == null && url != null && mapperClass == null) {
+          } else if (resource == null && url != null && mapperClass == null) {
             //10.2使用绝对url路径
             ErrorContext.instance().resource(url);
             InputStream inputStream = Resources.getUrlAsStream(url);
             //映射器比较复杂，调用XMLMapperBuilder
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
+            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url,
+                configuration.getSqlFragments());
             mapperParser.parse();
           }
           //通过接口类的限定类名，解析注解生成mappedStatement
@@ -565,16 +591,16 @@ public class XMLConfigBuilder extends BaseBuilder {
             Class<?> mapperInterface = Resources.classForName(mapperClass);
             //直接把这个映射加入配置
             configuration.addMapper(mapperInterface);
-          }
-          else {
-            throw new BuilderException("A mapper element may only specify a url, resource or class, but not more than one.");
+          } else {
+            throw new BuilderException(
+                "A mapper element may only specify a url, resource or class, but not more than one.");
           }
         }
       }
     }
   }
 
-	//比较id和environment是否相等
+  //比较id和environment是否相等
   private boolean isSpecifiedEnvironment(String id) {
     if (environment == null) {
       throw new BuilderException("No environment specified.");
