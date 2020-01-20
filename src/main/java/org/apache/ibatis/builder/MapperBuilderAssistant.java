@@ -54,7 +54,7 @@ import org.apache.ibatis.type.TypeHandler;
  */
 /**
  * 映射构建器助手，建造者模式,继承BaseBuilder
- *
+ * 辅助解析 语句，请求参数，返回参数等
  */
 public class MapperBuilderAssistant extends BaseBuilder {
 
@@ -284,11 +284,11 @@ public class MapperBuilderAssistant extends BaseBuilder {
       String databaseId,
       LanguageDriver lang,
       String resultSets) {
-    
+
     if (unresolvedCacheRef) {
       throw new IncompleteElementException("Cache-ref not yet resolved");
     }
-    
+
     //为id加上namespace前缀
     id = applyCurrentNamespace(id, false);
     //是否是select语句
@@ -421,7 +421,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       Class<? extends TypeHandler<?>> typeHandler,
       List<ResultFlag> flags,
       String resultSet,
-      String foreignColumn, 
+      String foreignColumn,
       boolean lazy) {
     Class<?> javaTypeClass = resolveResultJavaType(resultType, property, javaType);
     TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, typeHandler);
@@ -524,9 +524,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
       Class<? extends TypeHandler<?>> typeHandler,
       List<ResultFlag> flags) {
       return buildResultMapping(
-        resultType, property, column, javaType, jdbcType, nestedSelect, 
+        resultType, property, column, javaType, jdbcType, nestedSelect,
         nestedResultMap, notNullColumn, columnPrefix, typeHandler, flags, null, null, configuration.isLazyLoadingEnabled());
-  }  
+  }
 
   //取得语言驱动
   public LanguageDriver getLanguageDriver(Class<?> langClass) {
@@ -564,9 +564,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
     String databaseId,
     LanguageDriver lang) {
     return addMappedStatement(
-      id, sqlSource, statementType, sqlCommandType, fetchSize, timeout, 
-      parameterMap, parameterType, resultMap, resultType, resultSetType, 
-      flushCache, useCache, resultOrdered, keyGenerator, keyProperty, 
+      id, sqlSource, statementType, sqlCommandType, fetchSize, timeout,
+      parameterMap, parameterType, resultMap, resultType, resultSetType,
+      flushCache, useCache, resultOrdered, keyGenerator, keyProperty,
       keyColumn, databaseId, lang, null);
   }
 

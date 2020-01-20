@@ -31,6 +31,7 @@ public class XmlMapperBuilderTest {
     InputStream inputStream = Resources.getResourceAsStream(resource);
     XMLMapperBuilder builder = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
     builder.parse();
+    System.out.println();
   }
 
 //  @Test

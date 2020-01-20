@@ -109,6 +109,8 @@ public class MapperAnnotationBuilder {
     sqlAnnotationTypes.add(Update.class);
     sqlAnnotationTypes.add(Delete.class);
 
+    //这几个Provider的作用 其实就是引用关系，在其他类中实现完了，通过Provider就可以直接引用其实现，
+    //可以类比于Mapper接口定义 与我们对应生成xml文件
     sqlProviderAnnotationTypes.add(SelectProvider.class);
     sqlProviderAnnotationTypes.add(InsertProvider.class);
     sqlProviderAnnotationTypes.add(UpdateProvider.class);
@@ -340,7 +342,7 @@ public class MapperAnnotationBuilder {
           null);
     }
   }
-  
+
   private LanguageDriver getLanguageDriver(Method method) {
     Lang lang = method.getAnnotation(Lang.class);
     Class<?> langClass = null;
@@ -373,7 +375,7 @@ public class MapperAnnotationBuilder {
       ResultType rt = method.getAnnotation(ResultType.class);
       if (rt != null) {
         returnType = rt.value();
-      } 
+      }
     } else if (Collection.class.isAssignableFrom(returnType)) {
       Type returnTypeParameter = method.getGenericReturnType();
       if (returnTypeParameter instanceof ParameterizedType) {
@@ -529,12 +531,12 @@ public class MapperAnnotationBuilder {
     }
     return isLazy;
   }
-  
+
   private boolean hasNestedSelect(Result result) {
     if (result.one().select().length() > 0 && result.many().select().length() > 0) {
       throw new BuilderException("Cannot use both @One and @Many annotations in the same @Result");
     }
-    return result.one().select().length() > 0 || result.many().select().length() > 0;  
+    return result.one().select().length() > 0 || result.many().select().length() > 0;
   }
 
   private void applyConstructorArgs(Arg[] args, Class<?> resultType, List<ResultMapping> resultMappings) {

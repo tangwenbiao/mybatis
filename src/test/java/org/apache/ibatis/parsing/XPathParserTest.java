@@ -17,9 +17,15 @@ package org.apache.ibatis.parsing;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.io.InputStream;
 
+import java.util.Properties;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.submitted.permissions.Resource;
 import org.junit.Test;
 
 public class XPathParserTest {
@@ -29,7 +35,7 @@ public class XPathParserTest {
     String resource = "resources/nodelet_test.xml";
     InputStream inputStream = Resources.getResourceAsStream(resource);
     XPathParser parser = new XPathParser(inputStream, false, null, null);
-    assertEquals((Long)1970l, parser.evalLong("/employee/birth_date/year"));
+    assertEquals((Long) 1970l, parser.evalLong("/employee/birth_date/year"));
     assertEquals((short) 6, (short) parser.evalShort("/employee/birth_date/month"));
     assertEquals((Integer) 15, parser.evalInteger("/employee/birth_date/day"));
     assertEquals((Float) 5.8f, parser.evalFloat("/employee/height"));
@@ -41,6 +47,20 @@ public class XPathParserTest {
     XNode node = parser.evalNode("/employee/height");
     assertEquals("employee/height", node.getPath());
     assertEquals("employee[${id_var}]_height", node.getValueBasedIdentifier());
+  }
+
+  @Test
+  public void testXPathParser() throws IOException {
+    String resource = "resources/placeholder_test.xml";
+    InputStream inputStream = Resources.getResourceAsStream(resource);
+    Properties properties = new Properties();
+    properties.put("id_var", "aaa");
+    properties.put("that", "hei");
+    XPathParser pathParser = new XPathParser(inputStream, false, properties,null);
+    String string = pathParser.evalString("/employee/@id");
+    String string1 = pathParser.evalString("/employee/blah/@something");
+    System.out.println();
+
   }
 
 }

@@ -92,7 +92,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  */
 /**
  * 配置，里面好多配置项
- * 
+ * xml解析的信息都在里面，相当于执行sql需要的配置信息
  */
 public class Configuration {
 
@@ -110,7 +110,7 @@ public class Configuration {
   //默认启用缓存
   protected boolean cacheEnabled = true;
   protected boolean callSettersOnNulls = false;
-  
+
   protected String logPrefix;
   protected Class <? extends Log> logImpl;
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
@@ -133,6 +133,7 @@ public class Configuration {
   protected boolean lazyLoadingEnabled = false;
   protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
 
+  //标识数据库厂商
   protected String databaseId;
   /**
    * Configuration factory class.
@@ -710,7 +711,7 @@ public class Configuration {
   public void addCacheRef(String namespace, String referencedNamespace) {
     cacheRefMap.put(namespace, referencedNamespace);
   }
-  
+
   /*
    * Parses all the unprocessed statement nodes in the cache. It is recommended
    * to call this method once all the mappers are added as it provides fail-fast

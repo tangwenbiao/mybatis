@@ -28,7 +28,7 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 /*
  * Builds {@link SqlSession} instances.
  * 构建SqlSessionFactory的工厂.工厂模式
- *
+ *  用于生产上层接口SqlSessionFactory
  */
 /**
  * @author Clinton Begin
@@ -101,7 +101,7 @@ public class SqlSessionFactoryBuilder {
       }
     }
   }
-    
+
   //最后一个build方法使用了一个Configuration作为参数,并返回DefaultSqlSessionFactory
   public SqlSessionFactory build(Configuration config) {
     return new DefaultSqlSessionFactory(config);

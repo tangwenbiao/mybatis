@@ -47,7 +47,7 @@ import org.apache.ibatis.type.JdbcType;
  */
 /**
  * XML配置构建器，建造者模式,继承BaseBuilder
- *
+ * mybatis的config xml 构建器，用于解析文件做的所有信息
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
@@ -85,6 +85,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   //上面6个构造函数最后都合流到这个函数，传入XPathParser
+  //parser就是解析工具，environment就是环境变量，property用于辅助处理占位符参数
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
     //首先调用父类初始化Configuration
     super(new Configuration());
@@ -104,26 +105,26 @@ public class XMLConfigBuilder extends BaseBuilder {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
     parsed = true;
-//  <?xml version="1.0" encoding="UTF-8" ?> 
-//  <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
-//  "http://mybatis.org/dtd/mybatis-3-config.dtd"> 
-//  <configuration> 
-//  <environments default="development"> 
-//  <environment id="development"> 
-//  <transactionManager type="JDBC"/> 
-//  <dataSource type="POOLED"> 
-//  <property name="driver" value="${driver}"/> 
-//  <property name="url" value="${url}"/> 
-//  <property name="username" value="${username}"/> 
-//  <property name="password" value="${password}"/> 
-//  </dataSource> 
-//  </environment> 
+//  <?xml version="1.0" encoding="UTF-8" ?>
+//  <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+//  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+//  <configuration>
+//  <environments default="development">
+//  <environment id="development">
+//  <transactionManager type="JDBC"/>
+//  <dataSource type="POOLED">
+//  <property name="driver" value="${driver}"/>
+//  <property name="url" value="${url}"/>
+//  <property name="username" value="${username}"/>
+//  <property name="password" value="${password}"/>
+//  </dataSource>
+//  </environment>
 //  </environments>
-//  <mappers> 
-//  <mapper resource="org/mybatis/example/BlogMapper.xml"/> 
-//  </mappers> 
+//  <mappers>
+//  <mapper resource="org/mybatis/example/BlogMapper.xml"/>
+//  </mappers>
 //  </configuration>
-    
+
     //根节点是configuration
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
@@ -169,10 +170,10 @@ public class XMLConfigBuilder extends BaseBuilder {
 //  <typeAlias alias="Section" type="domain.blog.Section"/>
 //  <typeAlias alias="Tag" type="domain.blog.Tag"/>
 //</typeAliases>
-//or    
+//or
 //<typeAliases>
 //  <package name="domain.blog"/>
-//</typeAliases>  
+//</typeAliases>
   private void typeAliasesElement(XNode parent) {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
@@ -209,7 +210,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 //  <plugin interceptor="org.mybatis.example.ExamplePlugin">
 //    <property name="someProperty" value="100"/>
 //  </plugin>
-//</plugins>  
+//</plugins>
   private void pluginElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
@@ -311,7 +312,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           throw new BuilderException("The setting " + key + " is not known.  Make sure you spelled it correctly (case sensitive).");
         }
       }
-      
+
       //下面非常简单，一个个设置属性
       //如何自动映射列到字段/ 属性
       configuration.setAutoMappingBehavior(AutoMappingBehavior.valueOf(props.getProperty("autoMappingBehavior", "PARTIAL")));
@@ -348,7 +349,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       configuration.setSafeResultHandlerEnabled(booleanValueOf(props.getProperty("safeResultHandlerEnabled"), true));
       //动态SQL生成语言所使用的脚本语言
       configuration.setDefaultScriptingLanguage(resolveClass(props.getProperty("defaultScriptingLanguage")));
-      //当结果集中含有Null值时是否执行映射对象的setter或者Map对象的put方法。此设置对于原始类型如int,boolean等无效。 
+      //当结果集中含有Null值时是否执行映射对象的setter或者Map对象的put方法。此设置对于原始类型如int,boolean等无效。
       configuration.setCallSettersOnNulls(booleanValueOf(props.getProperty("callSettersOnNulls"), false));
       //logger名字的前缀
       configuration.setLogPrefix(props.getProperty("logPrefix"));
@@ -358,7 +359,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       configuration.setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
     }
   }
-  
+
 	//7.环境
 //	<environments default="development">
 //	  <environment id="development">
@@ -402,7 +403,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   //可以参考org.apache.ibatis.submitted.multidb包里的测试用例
 //	<databaseIdProvider type="VENDOR">
 //	  <property name="SQL Server" value="sqlserver"/>
-//	  <property name="DB2" value="db2"/>        
+//	  <property name="DB2" value="db2"/>
 //	  <property name="Oracle" value="oracle" />
 //	</databaseIdProvider>
   private void databaseIdProviderElement(XNode context) throws Exception {
@@ -531,11 +532,13 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
+        //通过注解的方式添加MappedStatement
         if ("package".equals(child.getName())) {
           //10.4自动扫描包下所有映射器
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
-        } else {
+        }
+        else {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
@@ -547,19 +550,23 @@ public class XMLConfigBuilder extends BaseBuilder {
             //注意在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
             mapperParser.parse();
-          } else if (resource == null && url != null && mapperClass == null) {
+          }
+          else if (resource == null && url != null && mapperClass == null) {
             //10.2使用绝对url路径
             ErrorContext.instance().resource(url);
             InputStream inputStream = Resources.getUrlAsStream(url);
             //映射器比较复杂，调用XMLMapperBuilder
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
             mapperParser.parse();
-          } else if (resource == null && url == null && mapperClass != null) {
+          }
+          //通过接口类的限定类名，解析注解生成mappedStatement
+          else if (resource == null && url == null && mapperClass != null) {
             //10.3使用java类名
             Class<?> mapperInterface = Resources.classForName(mapperClass);
             //直接把这个映射加入配置
             configuration.addMapper(mapperInterface);
-          } else {
+          }
+          else {
             throw new BuilderException("A mapper element may only specify a url, resource or class, but not more than one.");
           }
         }

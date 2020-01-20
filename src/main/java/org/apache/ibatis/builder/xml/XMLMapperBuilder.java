@@ -53,6 +53,7 @@ import org.apache.ibatis.type.TypeHandler;
 /**
  * XML映射构建器，建造者模式,继承BaseBuilder
  *
+ *  负责处理执行sql的mapper,处理结果存放在builderAssistant中
  */
 public class XMLMapperBuilder extends BaseBuilder {
 
@@ -105,7 +106,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       bindMapperForNamespace();
     }
 
-    //还有没解析完的东东这里接着解析？  
+    //还有没解析完的东东这里接着解析？
     parsePendingResultMaps();
     parsePendingChacheRefs();
     parsePendingStatements();
@@ -129,9 +130,9 @@ public class XMLMapperBuilder extends BaseBuilder {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
       builderAssistant.setCurrentNamespace(namespace);
-      //2.配置cache-ref
+      //2.配置cache-ref ,用于二级缓存
       cacheRefElement(context.evalNode("cache-ref"));
-      //3.配置cache
+      //3.配置cache 同上
       cacheElement(context.evalNode("cache"));
       //4.配置parameterMap(已经废弃,老式风格的参数映射)
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
@@ -216,7 +217,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
-  //2.配置cache-ref,在这样的 情况下你可以使用 cache-ref 元素来引用另外一个缓存。 
+  //2.配置cache-ref,在这样的 情况下你可以使用 cache-ref 元素来引用另外一个缓存。
 //<cache-ref namespace="com.someone.application.data.SomeMapper"/>
   private void cacheRefElement(XNode context) {
     if (context != null) {
@@ -419,7 +420,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       }
     }
   }
-  
+
   private boolean databaseIdMatchesCurrent(String id, String databaseId, String requiredDatabaseId) {
     if (requiredDatabaseId != null) {
       if (!requiredDatabaseId.equals(databaseId)) {
@@ -468,14 +469,14 @@ public class XMLMapperBuilder extends BaseBuilder {
     //又去调builderAssistant.buildResultMapping
     return builderAssistant.buildResultMapping(resultType, property, column, javaTypeClass, jdbcTypeEnum, nestedSelect, nestedResultMap, notNullColumn, columnPrefix, typeHandlerClass, flags, resulSet, foreignColumn, lazy);
   }
-  
+
   //5.1.1.1 处理嵌套的result map
   private String processNestedResultMappings(XNode context, List<ResultMapping> resultMappings) throws Exception {
 	  //处理association|collection|case
     if ("association".equals(context.getName())
         || "collection".equals(context.getName())
         || "case".equals(context.getName())) {
-    	
+
 //    	<resultMap id="blogResult" type="Blog">
 //    	  <association property="author" column="author_id" javaType="Author" select="selectAuthor"/>
 //    	</resultMap>

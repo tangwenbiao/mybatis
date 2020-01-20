@@ -44,7 +44,8 @@ import org.xml.sax.SAXParseException;
  */
 /**
  * XPath解析器，用的都是JDK的类包,封装了一下，使得使用起来更方便
- *
+ * 提供一种快速获取xml值的方式
+ * 如果是占位符的话，通过传入的Properties文件 找寻其中可以替换的key
  */
 public class XPathParser {
 
