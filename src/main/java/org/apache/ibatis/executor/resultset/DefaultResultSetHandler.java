@@ -166,6 +166,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     validateResultMapsCount(rsw, resultMapCount);
     while (rsw != null && resultMapCount > resultSetCount) {
       ResultMap resultMap = resultMaps.get(resultSetCount);
+      //处理数据库的返回结果
       handleResultSet(rsw, resultMap, multipleResults, null);
       rsw = getNextResultSet(stmt);
       cleanUpAfterHandlingResultSet();
@@ -251,7 +252,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     try {
       if (parentMapping != null) {
         handleRowValues(rsw, resultMap, null, RowBounds.DEFAULT, parentMapping);
-      } else {
+      }
+      else {
+        //如果传入了自己的resultHandler上层则会失效？
         if (resultHandler == null) {
           //如果没有resultHandler
           //新建DefaultResultHandler
@@ -260,12 +263,14 @@ public class DefaultResultSetHandler implements ResultSetHandler {
           handleRowValues(rsw, resultMap, defaultResultHandler, rowBounds, null);
           //得到记录的list
           multipleResults.add(defaultResultHandler.getResultList());
-        } else {
+        }
+        else {
           //如果有resultHandler
           handleRowValues(rsw, resultMap, resultHandler, rowBounds, null);
         }
       }
-    } finally {
+    }
+    finally {
       //最后别忘了关闭结果集，这个居然出bug了
       // issue #228 (close resultsets)
       closeResultSet(rsw.getResultSet());

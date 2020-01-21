@@ -43,13 +43,13 @@ public class RoutingStatementHandler implements StatementHandler {
 
     //根据语句类型，委派到不同的语句处理器(STATEMENT|PREPARED|CALLABLE)
     switch (ms.getStatementType()) {
-      case STATEMENT:
+      case STATEMENT://简单语句
         delegate = new SimpleStatementHandler(executor, ms, parameter, rowBounds, resultHandler, boundSql);
         break;
-      case PREPARED:
+      case PREPARED://预处理语句
         delegate = new PreparedStatementHandler(executor, ms, parameter, rowBounds, resultHandler, boundSql);
         break;
-      case CALLABLE:
+      case CALLABLE://解决存储过程
         delegate = new CallableStatementHandler(executor, ms, parameter, rowBounds, resultHandler, boundSql);
         break;
       default:

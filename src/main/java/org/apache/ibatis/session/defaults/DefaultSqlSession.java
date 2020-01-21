@@ -156,7 +156,9 @@ public class DefaultSqlSession implements SqlSession {
   @Override
   public void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     try {
+      //获取语句信息,比如入参，响应参数，原始语句
       MappedStatement ms = configuration.getMappedStatement(statement);
+      //委托给执行器执行
       executor.query(ms, wrapCollection(parameter), rowBounds, handler);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);

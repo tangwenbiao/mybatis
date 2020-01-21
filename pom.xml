@@ -14,8 +14,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -30,9 +31,12 @@
 
   <name>mybatis</name>
   <description>
-    The MyBatis data mapper framework makes it easier to use a relational database with object-oriented
-    applications. MyBatis couples objects with stored procedures or SQL statements using a XML descriptor or
-    annotations. Simplicity is the biggest advantage of the MyBatis data mapper over object relational mapping
+    The MyBatis data mapper framework makes it easier to use a relational database with
+    object-oriented
+    applications. MyBatis couples objects with stored procedures or SQL statements using a XML
+    descriptor or
+    annotations. Simplicity is the biggest advantage of the MyBatis data mapper over object
+    relational mapping
     tools.
   </description>
   <url>http://www.mybatis.org/core/</url>
@@ -107,7 +111,8 @@
   <scm>
     <url>http://github.com/mybatis/mybatis-3</url>
     <connection>scm:git:ssh://github.com/mybatis/mybatis-3.git</connection>
-    <developerConnection>scm:git:git+ssh://git@github.com/mybatis/mybatis-3.git</developerConnection>
+    <developerConnection>scm:git:git+ssh://git@github.com/mybatis/mybatis-3.git
+    </developerConnection>
     <tag>HEAD</tag>
   </scm>
   <issueManagement>
@@ -133,7 +138,15 @@
     <osgi.dynamicImport>*</osgi.dynamicImport>
   </properties>
 
+  <!--测试使用-->
   <dependencies>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.17</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>ognl</groupId>
       <artifactId>ognl</artifactId>
@@ -141,10 +154,10 @@
       <scope>provided</scope>
       <optional>true</optional>
       <exclusions>
-         <exclusion>
-            <groupId>javassist</groupId>
-            <artifactId>javassist</artifactId>
-         </exclusion>
+        <exclusion>
+          <groupId>javassist</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -254,7 +267,7 @@
               <name>derby.stream.error.file</name>
               <value>target/derby.log</value>
             </property>
-        </systemProperties>
+          </systemProperties>
         </configuration>
       </plugin>
       <plugin>
@@ -368,33 +381,33 @@
       </testResource>
     </testResources>
     <pluginManagement>
-        <plugins>
-            <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-            <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                    <lifecycleMappingMetadata>
-                        <pluginExecutions>
-                            <pluginExecution>
-                                <pluginExecutionFilter>
-                                    <groupId>org.sonatype.plugins</groupId>
-                                    <artifactId>jarjar-maven-plugin</artifactId>
-                                    <versionRange>[1.9,)</versionRange>
-                                    <goals>
-                                        <goal>jarjar</goal>
-                                    </goals>
-                                </pluginExecutionFilter>
-                                <action>
-                                    <ignore></ignore>
-                                </action>
-                            </pluginExecution>
-                        </pluginExecutions>
-                    </lifecycleMappingMetadata>
-                </configuration>
-            </plugin>
-        </plugins>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>jarjar-maven-plugin</artifactId>
+                    <versionRange>[1.9,)</versionRange>
+                    <goals>
+                      <goal>jarjar</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
     </pluginManagement>
   </build>
 

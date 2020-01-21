@@ -127,6 +127,7 @@ public abstract class BaseExecutor implements Executor {
   }
 
   @Override
+  //commit query
   public List<BatchResult> flushStatements() throws SQLException {
     return flushStatements(false);
   }
@@ -166,7 +167,7 @@ public abstract class BaseExecutor implements Executor {
     try {
       //加一,这样递归调用到上面的时候就不会再清局部缓存了
       queryStack++;
-      //先根据cachekey从localCache去查
+      //先根据cacheKey从localCache去查
       list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
       if (list != null) {
         //若查到localCache缓存，处理localOutputParameterCache
@@ -180,13 +181,14 @@ public abstract class BaseExecutor implements Executor {
       queryStack--;
     }
     if (queryStack == 0) {
-      //延迟加载队列中所有元素
+      //延迟加载队列中所有元素 这个队列的作用后面再研究
       for (DeferredLoad deferredLoad : deferredLoads) {
         deferredLoad.load();
       }
       // issue #601
       //清空延迟加载队列
       deferredLoads.clear();
+      //控制一级缓存
       if (configuration.getLocalCacheScope() == LocalCacheScope.STATEMENT) {
         // issue #482
     	//如果是STATEMENT，清本地缓存
@@ -235,11 +237,14 @@ public abstract class BaseExecutor implements Executor {
         String propertyName = parameterMapping.getProperty();
         if (boundSql.hasAdditionalParameter(propertyName)) {
           value = boundSql.getAdditionalParameter(propertyName);
-        } else if (parameterObject == null) {
+        }
+        else if (parameterObject == null) {
           value = null;
-        } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
+        }
+        else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
           value = parameterObject;
-        } else {
+        }
+        else {
           MetaObject metaObject = configuration.newMetaObject(parameterObject);
           value = metaObject.getValue(propertyName);
         }

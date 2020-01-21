@@ -68,9 +68,9 @@ public class SimpleExecutor extends BaseExecutor {
     try {
       Configuration configuration = ms.getConfiguration();
       //新建一个StatementHandler
-      //这里看到ResultHandler传入了
+      //获取具体执行的处理器
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
-      //准备语句
+      //准备语句，比ms更具体的语句,同时也决定了用哪种驱动
       stmt = prepareStatement(handler, ms.getStatementLog());
       //StatementHandler.query
       return handler.<E>query(stmt, resultHandler);

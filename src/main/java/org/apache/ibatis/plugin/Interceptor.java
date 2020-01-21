@@ -22,14 +22,15 @@ import java.util.Properties;
  */
 
 /**
- * 拦截器
+ * 拦截器 ParameterHandler|ResultSetHandler|StatementHandler|Executor 主要是这几个切入点
  */
 public interface Interceptor {
 
-  //拦截，感觉像是另一种自定义方式 TODO
+  //拦截，
   Object intercept(Invocation invocation) throws Throwable;
 
   //插入，在创建Executor的时候就会访问该方法
+  //ibatis提供了一种工具Plugin
   Object plugin(Object target);
 
   //设置属性，自定义属性，在创建类时候的时候就会访问该方法

@@ -144,9 +144,9 @@ public class XMLConfigBuilder extends BaseBuilder {
       typeAliasesElement(root.evalNode("typeAliases"));
       //3.插件
       pluginElement(root.evalNode("plugins"));
-      //4.对象工厂
+      //4.对象工厂，应该是针对返回值（暂时按下不表）
       objectFactoryElement(root.evalNode("objectFactory"));
-      //5.对象包装工厂
+      //5.对象包装工厂，暂时按下不表
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       //6.设置
       settingsElement(root.evalNode("settings"));
@@ -563,7 +563,8 @@ public class XMLConfigBuilder extends BaseBuilder {
           //10.4自动扫描包下所有映射器
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
-        } else {
+        }
+        else {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
@@ -576,7 +577,8 @@ public class XMLConfigBuilder extends BaseBuilder {
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration,
                 resource, configuration.getSqlFragments());
             mapperParser.parse();
-          } else if (resource == null && url != null && mapperClass == null) {
+          }
+          else if (resource == null && url != null && mapperClass == null) {
             //10.2使用绝对url路径
             ErrorContext.instance().resource(url);
             InputStream inputStream = Resources.getUrlAsStream(url);
@@ -591,7 +593,8 @@ public class XMLConfigBuilder extends BaseBuilder {
             Class<?> mapperInterface = Resources.classForName(mapperClass);
             //直接把这个映射加入配置
             configuration.addMapper(mapperInterface);
-          } else {
+          }
+          else {
             throw new BuilderException(
                 "A mapper element may only specify a url, resource or class, but not more than one.");
           }

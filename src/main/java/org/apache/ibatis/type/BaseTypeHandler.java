@@ -54,7 +54,8 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
                 "Try setting a different JdbcType for this parameter or a different jdbcTypeForNull configuration property. " +
                 "Cause: " + e, e);
       }
-    } else {
+    }
+    else {
       //非NULL情况，怎么设还得交给不同的子类完成, setNonNullParameter是一个抽象方法
       setNonNullParameter(ps, i, parameter, jdbcType);
     }

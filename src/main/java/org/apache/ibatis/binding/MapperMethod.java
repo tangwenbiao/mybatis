@@ -40,8 +40,8 @@ import java.util.*;
  */
 public class MapperMethod {
 
-  private final SqlCommand command;
-  private final MethodSignature method;
+  private final SqlCommand command; //sql命令
+  private final MethodSignature method; //方法参数详情？
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
     this.command = new SqlCommand(config, mapperInterface, method);

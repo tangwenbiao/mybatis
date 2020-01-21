@@ -90,9 +90,9 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * @author Clinton Begin
  */
+
 /**
- * 配置，里面好多配置项
- * xml解析的信息都在里面，相当于执行sql需要的配置信息
+ * 配置，里面好多配置项 xml解析的信息都在里面，相当于执行sql需要的配置信息
  */
 public class Configuration {
 
@@ -108,14 +108,15 @@ public class Configuration {
   protected boolean useGeneratedKeys = false;
   protected boolean useColumnLabel = true;
   //默认启用缓存
-  protected boolean cacheEnabled = true;
+  protected boolean cacheEnabled = true; //控制二级缓存
   protected boolean callSettersOnNulls = false;
 
   protected String logPrefix;
-  protected Class <? extends Log> logImpl;
-  protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
+  protected Class<? extends Log> logImpl;
+  protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION; //控制一级缓存
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
-  protected Set<String> lazyLoadTriggerMethods = new HashSet<String>(Arrays.asList(new String[] { "equals", "clone", "hashCode", "toString" }));
+  protected Set<String> lazyLoadTriggerMethods = new HashSet<String>(
+      Arrays.asList(new String[]{"equals", "clone", "hashCode", "toString"}));
   protected Integer defaultStatementTimeout;
   //默认为简单执行器
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
@@ -136,10 +137,11 @@ public class Configuration {
   //标识数据库厂商
   protected String databaseId;
   /**
-   * Configuration factory class.
-   * Used to create Configuration for loading deserialized unread properties.
+   * Configuration factory class. Used to create Configuration for loading deserialized unread
+   * properties.
    *
-   * @see <a href='https://code.google.com/p/mybatis/issues/detail?id=300'>Issue 300</a> (google code)
+   * @see <a href='https://code.google.com/p/mybatis/issues/detail?id=300'>Issue 300</a> (google
+   * code)
    */
   protected Class<?> configurationFactory;
 
@@ -151,16 +153,21 @@ public class Configuration {
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
   //映射的语句,存在Map里
-  protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
+  protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>(
+      "Mapped Statements collection");
   //缓存,存在Map里
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
   //结果映射,存在Map里
-  protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");
-  protected final Map<String, ParameterMap> parameterMaps = new StrictMap<ParameterMap>("Parameter Maps collection");
-  protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<KeyGenerator>("Key Generators collection");
+  protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>(
+      "Result Maps collection");
+  protected final Map<String, ParameterMap> parameterMaps = new StrictMap<ParameterMap>(
+      "Parameter Maps collection");
+  protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<KeyGenerator>(
+      "Key Generators collection");
 
   protected final Set<String> loadedResources = new HashSet<String>();
-  protected final Map<String, XNode> sqlFragments = new StrictMap<XNode>("XML fragments parsed from previous mappers");
+  protected final Map<String, XNode> sqlFragments = new StrictMap<XNode>(
+      "XML fragments parsed from previous mappers");
 
   //不完整的SQL语句
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<XMLStatementBuilder>();
@@ -473,29 +480,35 @@ public class Configuration {
   }
 
   //创建参数处理器
-  public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+  public ParameterHandler newParameterHandler(MappedStatement mappedStatement,
+      Object parameterObject, BoundSql boundSql) {
     //创建ParameterHandler
-    ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+    ParameterHandler parameterHandler = mappedStatement.getLang()
+        .createParameterHandler(mappedStatement, parameterObject, boundSql);
     //插件在这里插入
     parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
     return parameterHandler;
   }
 
   //创建结果集处理器
-  public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
+  public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement,
+      RowBounds rowBounds, ParameterHandler parameterHandler,
       ResultHandler resultHandler, BoundSql boundSql) {
     //创建DefaultResultSetHandler(稍老一点的版本3.1是创建NestedResultSetHandler或者FastResultSetHandler)
-    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
+    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement,
+        parameterHandler, resultHandler, boundSql, rowBounds);
     //插件在这里插入
     resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
     return resultSetHandler;
   }
 
   //创建语句处理器
-  public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+  public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement,
+      Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     //创建路由选择语句处理器
-    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
-    //插件在这里插入
+    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement,
+        parameterObject, rowBounds, resultHandler, boundSql);
+    //插件在这里插入，还有一个地方就是executor
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
   }
@@ -519,6 +532,7 @@ public class Configuration {
       executor = new SimpleExecutor(this, transaction);
     }
     //如果要求缓存，生成另一种CachingExecutor(默认就是有缓存),装饰者模式,所以默认都是返回CachingExecutor
+    //这应该是二级缓存
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
@@ -763,7 +777,8 @@ public class Configuration {
         if (value instanceof ResultMap) {
           ResultMap entryResultMap = (ResultMap) value;
           if (!entryResultMap.hasNestedResultMaps() && entryResultMap.getDiscriminator() != null) {
-            Collection<String> discriminatedResultMapNames = entryResultMap.getDiscriminator().getDiscriminatorMap().values();
+            Collection<String> discriminatedResultMapNames = entryResultMap.getDiscriminator()
+                .getDiscriminatorMap().values();
             if (discriminatedResultMapNames.contains(rm.getId())) {
               entryResultMap.forceNestedResultMaps();
             }
@@ -776,7 +791,8 @@ public class Configuration {
   // Slow but a one time cost. A better solution is welcome.
   protected void checkLocallyForDiscriminatedNestedResultMaps(ResultMap rm) {
     if (!rm.hasNestedResultMaps() && rm.getDiscriminator() != null) {
-      for (Map.Entry<String, String> entry : rm.getDiscriminator().getDiscriminatorMap().entrySet()) {
+      for (Map.Entry<String, String> entry : rm.getDiscriminator().getDiscriminatorMap()
+          .entrySet()) {
         String discriminatedResultMapName = entry.getValue();
         if (hasResultMap(discriminatedResultMapName)) {
           ResultMap discriminatedResultMap = resultMaps.get(discriminatedResultMapName);
@@ -846,8 +862,9 @@ public class Configuration {
       //如果是模糊型的，也报错，提示用户
       //原来这个模糊型就是为了提示用户啊
       if (value instanceof Ambiguity) {
-        throw new IllegalArgumentException(((Ambiguity) value).getSubject() + " is ambiguous in " + name
-            + " (try using the full name including the namespace, or rename one of the entries)");
+        throw new IllegalArgumentException(
+            ((Ambiguity) value).getSubject() + " is ambiguous in " + name
+                + " (try using the full name including the namespace, or rename one of the entries)");
       }
       return value;
     }
@@ -860,6 +877,7 @@ public class Configuration {
 
     //模糊，居然放在Map里面的一个静态内部类，
     protected static class Ambiguity {
+
       //提供一个主题
       private String subject;
 
